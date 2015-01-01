@@ -1,0 +1,15 @@
+synchronize/logs
+synchronize/project/project
+synchronize/project/target
+synchronize/target
+synchronize/tmp
+.history
+dist
+.idea
+*.iml
+out
+.idea_modules
+.classpath
+.project
+RUNNING_PID
+.settings
