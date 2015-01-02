@@ -1,25 +1,45 @@
-import java.io.File
+// Copyright (C) 2011-2012 the original author or authors.
+// See the LICENCE.txt file distributed with this work for additional
+// information regarding copyright ownership.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 import scalaj.http._
 
 object Synchronize {
 
-  def postToFirebase(postData: String, postURI: String): Int = {
+  def main(args: Array[String]): Unit = {
+    Seq(("../posts", System.getenv("POST_URI")), ("../drafts", System.getenv("DRAFT_URI")))
+      .map(contentAndUri => (Utils.getListOfFiles(contentAndUri._1), contentAndUri._2))
+      .map(contentAndUri => (Utils.createJsonFor(contentAndUri._1), contentAndUri._2))
+      .foreach(updateFirebase)
+  }
+
+  private[this] def updateFirebase(contentAndUri: (List[String], String)) = {
+    deleteFromFirebase(contentAndUri._2)
+    postAllToFirebase(contentAndUri._1, contentAndUri._2)
+  }
+
+  private[this] def postAllToFirebase(content: List[String], uri: String) = {
+    content.map(postToFirebase(_, uri))
+  }
+
+  private[this] def postToFirebase(postData: String, postURI: String) = {
     Http(postURI).postData(postData).header("content-type", "application/json").method("POST").asString.code
   }
 
-  def deleteFromFirebase(deleteURI: String) = {
+  private[this] def deleteFromFirebase(deleteURI: String) = {
     Http(deleteURI).method("DELETE").asString.code
   }
 
-  def main(args: Array[String]) = {
-    val posts: List[File] = Utils.getListOfFiles("../posts")
-    val drafts: List[File] = Utils.getListOfFiles("../drafts")
-    val postsJson: List[String] = Utils.createJsonFor(posts)
-    val draftsJson: List[String] = Utils.createJsonFor(drafts)
-    deleteFromFirebase(System.getenv("POST_URI"))
-    deleteFromFirebase(System.getenv("DRAFT_URI"))
-    postsJson.map(postJson => postToFirebase(postJson, System.getenv("POST_URI")))
-    draftsJson.map(postJson => postToFirebase(postJson, System.getenv("DRAFT_URI")))
-  }
 }
