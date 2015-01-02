@@ -1,5 +1,3 @@
-package com.github.otterviews
-
 // Copyright (C) 2011-2012 the original author or authors.
 // See the LICENCE.txt file distributed with this work for additional
 // information regarding copyright ownership.
@@ -15,6 +13,8 @@ package com.github.otterviews
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+package com.github.otterviews
 
 import com.typesafe.config.{ Config, ConfigFactory }
 import shapeless._

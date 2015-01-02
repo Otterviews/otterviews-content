@@ -36,7 +36,7 @@ object Utils {
     files.map(file => createContent(file))
 
   private[this] def createContent(file: File) =
-    new Content(file.getName, Source.fromFile(file.getAbsolutePath).mkString, new Date()).toJson
+    Content(file.getName, Source.fromFile(file.getAbsolutePath).mkString, new Date()).toJson
 
 }
 

@@ -16,16 +16,17 @@
 
 package com.github.otterviews
 
+import java.text.SimpleDateFormat
 import java.util.Date
 
 import spray.json.{ JsObject, JsString }
 
-class Content(title: String, content: String, date: Date) {
+case class Content(title: String, content: String, date: Date) {
 
   def toJson: String = JsObject(
     "title" -> JsString(title),
     "content" -> JsString(content),
-    "date" -> JsString(date.toString)
+    "date" -> JsString(new SimpleDateFormat("yyyy-MM-dd").format(date))
   ).toString()
 
 }
