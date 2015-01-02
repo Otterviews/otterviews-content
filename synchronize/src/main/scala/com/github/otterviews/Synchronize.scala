@@ -1,3 +1,5 @@
+package com.github.otterviews
+
 // Copyright (C) 2011-2012 the original author or authors.
 // See the LICENCE.txt file distributed with this work for additional
 // information regarding copyright ownership.
@@ -14,32 +16,40 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import com.typesafe.config.{ Config, ConfigFactory }
+import shapeless._
+import shapeless.record._
+import shapeless.syntax.singleton._
+
 import scalaj.http._
 
 object Synchronize {
 
+  val config: Config = ConfigFactory.load()
+
   def main(args: Array[String]): Unit = {
-    Seq(("../posts", System.getenv("POST_URI")), ("../drafts", System.getenv("DRAFT_URI")))
-      .map(contentAndUri => (Utils.getListOfFiles(contentAndUri._1), contentAndUri._2))
-      .map(contentAndUri => (Utils.createJsonFor(contentAndUri._1), contentAndUri._2))
-      .foreach(updateFirebase)
+    Seq(configFor("posts"), configFor("drafts"))
+      .map(info => info + ("files" ->> Utils.getListOfFiles(info("path"))))
+      .map(info => info + ("contents" ->> Utils.createJsonFor(info("files"))))
+      .foreach(info => updateFirebase(info("contents"), info("uri")))
   }
 
-  private[this] def updateFirebase(contentAndUri: (List[String], String)) = {
-    deleteFromFirebase(contentAndUri._2)
-    postAllToFirebase(contentAndUri._1, contentAndUri._2)
+  private[this] def configFor(name: String) =
+    ("path" ->> config.getConfig(name).getString("path")) ::
+      ("uri" ->> config.getConfig(name).getString("uri")) :: HNil
+
+  private[this] def updateFirebase(contents: List[String], uri: String) = {
+    deleteFromFirebase(uri)
+    postAllToFirebase(contents, uri)
   }
 
-  private[this] def postAllToFirebase(content: List[String], uri: String) = {
+  private[this] def postAllToFirebase(content: List[String], uri: String) =
     content.map(postToFirebase(_, uri))
-  }
 
-  private[this] def postToFirebase(postData: String, postURI: String) = {
+  private[this] def postToFirebase(postData: String, postURI: String) =
     Http(postURI).postData(postData).header("content-type", "application/json").method("POST").asString.code
-  }
 
-  private[this] def deleteFromFirebase(deleteURI: String) = {
+  private[this] def deleteFromFirebase(deleteURI: String) =
     Http(deleteURI).method("DELETE").asString.code
-  }
 
 }

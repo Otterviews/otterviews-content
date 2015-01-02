@@ -14,18 +14,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+package com.github.otterviews
+
+import java.io.File
 import java.util.Date
 
-import spray.json.{ JsObject, JsString }
+import scala.io.Source
 
-class Content(title: String, content: String, date: Date) {
+object Utils {
 
-  def toJson: String = {
-    JsObject(
-      "title" -> JsString(title),
-      "content" -> JsString(content),
-      "date" -> JsString(date.toString)
-    ).toString()
+  def getListOfFiles(dir: String): List[File] = {
+    val d = new File(dir)
+    if (d.exists && d.isDirectory) {
+      d.listFiles.filter(_.isFile).toList
+    } else {
+      List[File]()
+    }
   }
 
+  def createJsonFor(files: List[File]): List[String] =
+    files.map(file => createContent(file))
+
+  private[this] def createContent(file: File) =
+    new Content(file.getName, Source.fromFile(file.getAbsolutePath).mkString, new Date()).toJson
+
 }
+
