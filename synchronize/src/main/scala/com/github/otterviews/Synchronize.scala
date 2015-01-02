@@ -21,22 +21,22 @@ import shapeless._
 import shapeless.record._
 import shapeless.syntax.singleton._
 
+import scala.collection.JavaConversions._
 import scalaj.http._
 
 object Synchronize {
 
-  val config: Config = ConfigFactory.load()
-
   def main(args: Array[String]): Unit = {
-    Seq(configFor("posts"), configFor("drafts"))
+    ConfigFactory.load.getConfigList("endpoints")
+      .map(conf => recordFor(conf))
       .map(info => info + ("files" ->> Utils.getListOfFiles(info("path"))))
       .map(info => info + ("contents" ->> Utils.createJsonFor(info("files"))))
       .foreach(info => updateFirebase(info("contents"), info("uri")))
   }
 
-  private[this] def configFor(name: String) =
-    ("path" ->> config.getConfig(name).getString("path")) ::
-      ("uri" ->> config.getConfig(name).getString("uri")) :: HNil
+  private[this] def recordFor(conf: Config) =
+    ("path" ->> conf.getString("path")) ::
+      ("uri" ->> conf.getString("uri")) :: HNil
 
   private[this] def updateFirebase(contents: List[String], uri: String) = {
     deleteFromFirebase(uri)
