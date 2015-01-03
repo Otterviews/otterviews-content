@@ -18,7 +18,7 @@ package com.github.otterviews
 
 import java.io.File
 import java.util.Date
-import CustomJsonProtocol._
+import PostJsonProtocol._
 import scala.io.Source
 
 object Utils {
