@@ -19,6 +19,7 @@ package com.github.otterviews
 import java.io.File
 import java.util.Date
 import PostJsonProtocol._
+import spray.json._
 import scala.io.Source
 
 object Utils {
@@ -36,7 +37,7 @@ object Utils {
     files.map(file => createContent(file))
 
   private[this] def createContent(file: File) = {
-    Post(file.getName, Source.fromFile(file.getAbsolutePath).mkString, new Date()).toJson
+    Post(file.getName, Source.fromFile(file.getAbsolutePath).mkString, new Date()).toJson.toString
   }
 
 }
