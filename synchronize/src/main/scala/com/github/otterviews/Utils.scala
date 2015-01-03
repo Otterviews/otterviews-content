@@ -36,7 +36,7 @@ object Utils {
     files.map(file => createContent(file))
 
   private[this] def createContent(file: File) = {
-    val post: Post = new Post(file.getName, Source.fromFile(file.getAbsolutePath).mkString, new Date()).toJson
+    Post(file.getName, Source.fromFile(file.getAbsolutePath).mkString, new Date()).toJson
   }
 
 }

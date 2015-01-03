@@ -18,9 +18,4 @@ package com.github.otterviews
 
 import java.util.Date
 
-class Post(titlec: String, contentc: String, datec: Date) {
-  val title: String = titlec
-  val content: String = contentc
-  val date: Date = datec
-
-}
+case class Post(title: String, content: String, date: Date)
