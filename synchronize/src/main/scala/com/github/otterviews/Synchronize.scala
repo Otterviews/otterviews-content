@@ -16,7 +16,7 @@
 
 package com.github.otterviews
 
-import com.typesafe.config.{ Config, ConfigFactory }
+import com.typesafe.config.{Config, ConfigFactory}
 import shapeless._
 import shapeless.record._
 import shapeless.syntax.singleton._
@@ -46,8 +46,10 @@ object Synchronize {
   private[this] def postAllToFirebase(content: List[String], uri: String) =
     content.map(postToFirebase(_, uri))
 
-  private[this] def postToFirebase(postData: String, postURI: String) =
+  private[this] def postToFirebase(postData: String, postURI: String) = {
     Http(postURI).postData(postData).header("content-type", "application/json").method("POST").asString.code
+  }
+
 
   private[this] def deleteFromFirebase(deleteURI: String) =
     Http(deleteURI).method("DELETE").asString.code

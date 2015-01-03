@@ -18,7 +18,7 @@ package com.github.otterviews
 
 import java.io.File
 import java.util.Date
-
+import CustomJsonProtocol._
 import scala.io.Source
 
 object Utils {
@@ -35,8 +35,9 @@ object Utils {
   def createJsonFor(files: List[File]): List[String] =
     files.map(file => createContent(file))
 
-  private[this] def createContent(file: File) =
-    Content(file.getName, Source.fromFile(file.getAbsolutePath).mkString, new Date()).toJson
+  private[this] def createContent(file: File) = {
+    val post: Post = new Post(file.getName, Source.fromFile(file.getAbsolutePath).mkString, new Date()).toJson
+  }
 
 }
 
