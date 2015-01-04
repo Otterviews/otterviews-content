@@ -14,13 +14,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.github.otterviews
+package com.github.otterviews.mapper
 
+import java.io.File
 import java.util.Date
 
-case class Post(title: String, content: String, date: Date) {
-  override def equals(obj: scala.Any): Boolean = {
-    val post: Post = obj.asInstanceOf[Post]
-    return this.title == post.title && this.content == post.content
+import com.github.otterviews.model.Post
+
+import scala.io.Source
+
+object PostMapper {
+
+  def getListOfFiles(dir: String): List[File] = {
+    val d = new File(dir)
+    if (d.exists && d.isDirectory) {
+      d.listFiles.filter(_.isFile).toList
+    } else {
+      List[File]()
+    }
   }
+
+  def createPosts(files: List[File]): List[Post] =
+    files.map(file => createPost(file))
+
+  private[this] def createPost(file: File) = {
+    Post(file.getName, Source.fromFile(file.getAbsolutePath).mkString, new Date())
+  }
+
 }
+

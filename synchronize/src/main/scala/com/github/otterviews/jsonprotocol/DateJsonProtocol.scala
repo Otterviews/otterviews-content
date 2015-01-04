@@ -1,4 +1,4 @@
-package com.github.otterviews
+package com.github.otterviews.jsonprotocol
 
 import java.text.SimpleDateFormat
 import java.util.Date
