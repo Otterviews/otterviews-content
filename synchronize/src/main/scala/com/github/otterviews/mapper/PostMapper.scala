@@ -37,9 +37,7 @@ object PostMapper {
   def createPosts(files: List[File]): List[Post] =
     files.map(file => createPost(file))
 
-  private[this] def createPost(file: File) = {
+  private[this] def createPost(file: File) =
     Post(file.getName, Source.fromFile(file.getAbsolutePath).mkString, new Date())
-  }
-
 }
 

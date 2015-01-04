@@ -11,9 +11,8 @@ case class PostService() {
   def updatePosts(posts: List[Post], uri: String) =
     getNewPosts(posts, uri).map(post => postToFirebase(post, uri))
 
-  private[this] def getNewPosts(posts: List[Post], uri: String): Set[Post] = {
+  private[this] def getNewPosts(posts: List[Post], uri: String): Set[Post] =
     posts.toSet -- getAllFromFirebase(uri).toSet
-  }
 
   private[this] def getAllFromFirebase(uri: String): Iterable[Post] =
     Http(uri).method("GET").asString.body.parseJson.asJsObject.fields.map {
