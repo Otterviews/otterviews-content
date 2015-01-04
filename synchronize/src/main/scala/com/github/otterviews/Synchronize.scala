@@ -16,41 +16,39 @@
 
 package com.github.otterviews
 
+import com.github.otterviews.PostJsonProtocol._
 import com.typesafe.config.{ Config, ConfigFactory }
 import shapeless._
 import shapeless.record._
 import shapeless.syntax.singleton._
+import spray.json._
 
 import scala.collection.JavaConversions._
+import scala.collection.immutable.List
 import scalaj.http._
 
 object Synchronize {
 
-  def main(args: Array[String]): Unit = {
+  def main(args: Array[String]): Unit =
     ConfigFactory.load.getConfigList("endpoints")
       .map(conf => recordFor(conf))
       .map(info => info + ("files" ->> Utils.getListOfFiles(info("path"))))
-      .map(info => info + ("contents" ->> Utils.createJsonFor(info("files"))))
-      .foreach(info => updateFirebase(info("contents"), info("uri")))
-  }
+      .map(info => info + ("posts" ->> Utils.createPosts(info("files"))))
+      .foreach(info => updateFirebase(info("posts"), info("uri")))
 
   private[this] def recordFor(conf: Config) =
     ("path" ->> conf.getString("path")) ::
       ("uri" ->> conf.getString("uri")) :: HNil
 
-  private[this] def updateFirebase(contents: List[String], uri: String) = {
-    deleteFromFirebase(uri)
-    postAllToFirebase(contents, uri)
-  }
+  private[this] def updateFirebase(posts: List[Post], uri: String) =
+    (posts.toSet -- getAllFromFirebase(uri).toSet).map(post => postToFirebase(post, uri))
 
-  private[this] def postAllToFirebase(content: List[String], uri: String) =
-    content.map(postToFirebase(_, uri))
+  private[this] def getAllFromFirebase(uri: String): Iterable[Post] =
+    Http(uri).method("GET").asString.body.parseJson.asJsObject.fields.map {
+      case (key, value) =>
+        value.convertTo[Post]
+    }
 
-  private[this] def postToFirebase(postData: String, postURI: String) = {
-    Http(postURI).postData(postData).header("content-type", "application/json").method("POST").asString.code
-  }
-
-  private[this] def deleteFromFirebase(deleteURI: String) =
-    Http(deleteURI).method("DELETE").asString.code
-
+  private[this] def postToFirebase(postData: Post, postURI: String) =
+    Http(postURI).postData(postData.toJson.toString).header("content-type", "application/json").method("POST").asString.code
 }

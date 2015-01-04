@@ -18,4 +18,9 @@ package com.github.otterviews
 
 import java.util.Date
 
-case class Post(title: String, content: String, date: Date)
+case class Post(title: String, content: String, date: Date) {
+  override def equals(obj: scala.Any): Boolean = {
+    val post: Post = obj.asInstanceOf[Post]
+    return this.title == post.title && this.content == post.content
+  }
+}
